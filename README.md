@@ -69,5 +69,22 @@ For me, that's the following (note, Metallb sets up the two interfaces giving th
 
 
 
+# Starting from karton-playground
+This effort starts with taking a look at karton-playground, which is the malware triage/analysis capability. 
+
+It is published open source and is ran with docker compose. First thing we need to do is take all of the containers and build them for arm since they are only distributed for x86.
+A quick google finds the following:
+
+[mwdb-core and mwdb-web](https://github.com/CERT-Polska/mwdb-core)
+
+[karton-mwdb-reporter](https://github.com/CERT-Polska/karton-mwdb-reporter)
+
+[karton-system](https://github.com/CERT-Polska/karton)
+
+[karton-dashboard](https://github.com/CERT-Polska/karton-dashboard)
+
+[karton-classifier](https://github.com/CERT-Polska/karton-classifier)
+
+We need to clone each of the repos so we can build the images to our architecture. We'll also need to determine what networking is happening that Docker does natively that we'll have to specify within K8s
 
 
