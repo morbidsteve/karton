@@ -122,3 +122,16 @@ Now that we have the containers built, we can move onto figuring out how to get 
 ## kompose
 A bit of googling led me to kompose, I tried putting all of the definitions together to kompose everything at once, but due to my lack of experience in this area, I found it easiest to do them one at a time.
 
+Once I did all of these transpositions, next came getting them all up and running in k8s. It's not really worth my time to go back and do each iteration here because it took a long time for me since this was my first time.
+
+It's enough to say that there's a bunch of troubleshooting to get things up and working one at a time. 
+
+# Helmify
+After you have all of the images up and running, and working together in k8s, next is to translate all of the k8s manifests to helm charts. 
+
+A bit off googling drove me towards using helmify to get this done. Again, I did one image at a time to make it easier on myself. Once I become more comfortable with helm charts, I'd probably do them all at once. 
+
+Once I had helm charts, I iterated through each to troubleshoot their individual deployment errors until I get everything up and functioning together. 
+
+# UDS integration
+Now the hard part. UDS is a **secure** k8s platform. That means that necessarily there are features/functionality that are by default restricted or limited. Figuring out how to get each component up and running in UDS was quite a difficult endeavor.
