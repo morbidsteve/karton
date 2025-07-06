@@ -135,3 +135,17 @@ Once I had helm charts, I iterated through each to troubleshoot their individual
 
 # UDS integration
 Now the hard part. UDS is a **secure** k8s platform. That means that necessarily there are features/functionality that are by default restricted or limited. Figuring out how to get each component up and running in UDS was quite a difficult endeavor.
+
+What I found easiest or at least somewhat straightforward, was to clone the [UDS package template](https://github.com/uds-packages/template/tree/main)
+
+From there, under charts, I created a karton directory and a uds-config directory.
+
+Under the karton directory, I created a directory for each component, and within each, a subsequent templates directory. I copied configmaps, services, and deployments into the templates directory for each component. 
+
+Several days of iterating, I modified different parts of the helm charts to get things up and running smoothly and seemingly able to communicate with each other.
+
+## UDS take aways
+To start, it's important to understand the [UDS package](https://uds.defenseunicorns.com/structure/packages/) setup and config.
+
+
+# NEED TO COMPLETE
