@@ -87,4 +87,38 @@ A quick google finds the following:
 
 We need to clone each of the repos so we can build the images to our architecture. We'll also need to determine what networking is happening that Docker does natively that we'll have to specify within K8s
 
+The way I did this was create a `docker-build-space` folder in my home directory (I'm running as root atm on a Ubuntu server that I've instantiated RKE2 + Zarf init) where I pulled all of the repos above.
+
+
+## mwdb-core
+Starting from the top, once cloned, cd into the directory and lets take a look at the docker-compose.yaml. We see that the mwdb service pulls it's config from `dockerfile: deploy/docker/Dockerfile`
+
+We can also immediately see that it depends on redis and postgres.
+
+We can simply build the image from the rood mwdb-core folder, pointing at the Dockerfile with the following command `docker build -t mwdb:alive -f deploy/docker/Dockerfile .`
+
+The result is an image `mwdb` with tag `alive` or `mwdb'alive`. 
+
+## mwdb-web
+Similar to the above, we can see in the docker-compose.yaml that mwdb-web is built from deploy/docker/Dockerfile-web, so follow the same steps as above.
+
+Note that mwdb-web has `ports: 80:80` in it's Dockerfile. We'll have to figure this out later
+
+## karton-mwdb-reporter
+No different than the above
+
+## karton-system
+Same same
+
+## karton-dashboard
+Same same, note the command `CMD karton-dashboard run --host 0.0.0.0`. We'll have to figure this out later
+
+## karton-classifier
+Same same
+
+# Docker images to k8s manifests
+Now that we have the containers built, we can move onto figuring out how to get the Dockerfiles/docker-compose.yaml configs/images up and running in k8s.
+
+## kompose
+A bit of googling led me to kompose, I tried putting all of the definitions together to kompose everything at once, but due to my lack of experience in this area, I found it easiest to do them one at a time.
 
