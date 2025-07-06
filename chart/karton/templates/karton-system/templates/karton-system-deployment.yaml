@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: karton-system
+  labels:
+    io.kompose.service: karton-system
+  annotations:
+    kompose.cmd: kompose convert -c
+    kompose.version: 1.36.0 (ae2a39403)
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      io.kompose.service: karton-system
+  template:
+    metadata:
+      labels:
+        io.kompose.service: karton-system
+    spec:
+      containers:
+        - name: karton-system
+          image: karton-system:alive
+          command:
+            - karton-system
+          args:
+            - --setup-bucket
+          env:
+            - name: KUBERNETES_CLUSTER_DOMAIN
+              value: cluster.local
+          resources: {}
+          volumeMounts:
+            - mountPath: /etc/karton/karton.ini
+              name: karton-system-cm0
+              subPath: karton.ini
+      restartPolicy: Always
+      volumes:
+        - configMap:
+            items:
+              - key: karton.docker.ini
+                path: karton.ini
+            name: karton-system-cm0
+          name: karton-system-cm0
+

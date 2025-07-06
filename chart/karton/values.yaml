@@ -1,0 +1,236 @@
+kubernetesClusterDomain: cluster.local
+sso:
+  enabled: false
+
+#classifier
+kartonClassifier:
+  kartonClassifier:
+    image:
+      repository: karton-classifier
+      tag: alive
+      pullPolicy: IfNotPresent  # Official image, use IfNotPresent
+  replicas: 1
+  strategy:
+    type: Recreate
+kartonClassifierCm0:
+  kartonDockerIni: |-
+    [redis]
+    host=redis
+    [s3]
+    access_key = mwdb
+    secret_key = mwdbmwdb
+    address = http://minio:9000
+    bucket = karton
+    [mwdb]
+    api_url = http://mwdb:8080/api/
+    username = admin
+    password = admin
+
+
+#dashboard
+cm0:
+  kartonDockerIni: |-
+    [redis]
+    host=redis
+    [s3]
+    access_key = mwdb
+    secret_key = mwdbmwdb
+    address = http://minio:9000
+    bucket = karton
+    [mwdb]
+    api_url = http://mwdb:8080/api/
+    username = admin
+    password = admin
+kartonDashboard:
+  kartonDashboard:
+    image:
+      repository: karton-dashboard
+      tag: local
+      pullPolicy: IfNotPresent  # Official image, use IfNotPresent
+  ports:
+    - name: http
+      port: 5000
+      targetPort: 5000
+  replicas: 1
+  strategy:
+    type: Recreate
+
+
+
+#mwdb-reporter
+cm0:
+  kartonDockerIni: |-
+    [redis]
+    host=redis
+    [s3]
+    access_key = mwdb
+    secret_key = mwdbmwdb
+    address = http://minio:9000
+    bucket = karton
+    [mwdb]
+    api_url = http://mwdb:8080/api/
+    username = admin
+    password = admin
+kartonMwdbReporter:
+  kartonMwdbReporter:
+    image:
+      repository: karton-mwdb-reporter
+      tag: alive
+      pullPolicy: IfNotPresent  # Official image, use IfNotPresent
+  replicas: 1
+  strategy:
+    type: Recreate
+
+
+
+#karton-system
+cm0:
+  kartonDockerIni: |-
+    [redis]
+    host=redis
+    [s3]
+    access_key = mwdb
+    secret_key = mwdbmwdb
+    address = http://minio:9000
+    bucket = karton
+    [mwdb]
+    api_url = http://mwdb:8080/api/
+    username = admin
+    password = admin
+kartonSystem:
+  kartonSystem:
+    args:
+      - --setup-bucket
+    image:
+      repository: karton-system
+      tag: alive
+      pullPolicy: IfNotPresent  # Official image, use IfNotPresent
+  replicas: 1
+  strategy:
+    type: Recreate
+
+#minio
+minio:
+  minio:
+    args:
+      - -c
+      - mkdir -p /data/mwdb && minio server --address 0.0.0.0:9000 --console-address
+        :8070 /data
+    env:
+      minioAccessKey: mwdb
+      minioSecretKey: mwdbmwdb
+    image:
+      repository: minio/minio
+      tag: latest
+      pullPolicy: IfNotPresent  # Official image, use IfNotPresent
+  ports:
+    - name: "8090"
+      port: 8090
+      targetPort: 9000
+    - name: "8070"
+      port: 8070
+      targetPort: 8070
+    - name: "9000"
+      port: 9000
+      targetPort: 9000
+  replicas: 1
+  type: ClusterIP
+
+#mwdb
+mwdb:
+  mwdb:
+    env:
+      mwdbAdminPassword: admin
+      mwdbEnableKarton: "1"
+      mwdbHashPathing: "0"
+      mwdbPostgresUri: postgresql://mwdb:mwdbsecretpass@postgres/mwdb
+      mwdbRedisUri: redis://redis/
+      mwdbS3StorageAccessKey: mwdb
+      mwdbS3StorageBucketName: mwdb
+      mwdbS3StorageEndpoint: minio:9000
+      mwdbS3StorageSecretKey: mwdbmwdb
+      mwdbSecretKey: secretkey
+      mwdbStorageProvider: s3
+    image:
+      repository: mwdb
+      tag: local
+      pullPolicy: IfNotPresent  # Official image, use IfNotPresent
+  cm0:
+    kartonDockerIni: |-
+      [redis]
+      host=redis
+      [s3]
+      access_key = mwdb
+      secret_key = mwdbmwdb
+      address = http://minio:9000
+      bucket = karton
+      [mwdb]
+      api_url = http://mwdb:8080/api/
+      username = admin
+      password = admin
+  ports:
+    - name: "80"
+      port: 80
+      targetPort: 80
+    - name: "8080"
+      port: 8080
+      targetPort: 8080
+  replicas: 1
+  strategy:
+    type: Recreate
+  type: ClusterIP
+
+#mwdb-web
+mwdbWeb:
+  mwdbWeb:
+    image:
+      repository: mwdb-web
+      tag: alive
+      pullPolicy: IfNotPresent  # Official image, use IfNotPresent
+  ports:
+    - name: "80"
+      port: 80
+      targetPort: 80
+    - name: "8080"
+      port: 8080
+      targetPort: 80
+  replicas: 1
+  type: ClusterIP
+
+
+#postgres
+postgres:
+  ports:
+    - name: "5432"
+      port: 5432
+      targetPort: 5432
+  postgres:
+    env:
+      postgresDb: mwdb
+      postgresPassword: mwdbsecretpass
+      postgresUser: mwdb
+    image:
+      repository: bitnami/postgresql
+      tag: "16"
+      pullPolicy: IfNotPresent  # Official image, use IfNotPresent
+  replicas: 1
+  type: ClusterIP
+
+
+
+#redis
+redis:
+  ports:
+    - name: "8379"
+      port: 8379
+      targetPort: 6379
+    - name: "6379"
+      port: 6379
+      targetPort: 6379
+  redis:
+    image:
+      repository: redis
+      tag: alpine
+      pullPolicy: IfNotPresent  # Official image, use IfNotPresent
+  replicas: 1
+  type: ClusterIP

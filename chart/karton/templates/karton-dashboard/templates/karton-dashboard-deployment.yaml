@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: karton-dashboard
+  labels:
+    io.kompose.service: karton-dashboard
+  annotations:
+    kompose.cmd: kompose convert -c
+    kompose.version: 1.36.0 (ae2a39403)
+spec:
+  replicas: {{ .Values.kartonDashboard.replicas }}
+  strategy:
+    type: {{ .Values.kartonDashboard.strategy.type | quote }}
+  selector:
+    matchLabels:
+      io.kompose.service: karton-dashboard
+  template:
+    metadata:
+      labels:
+        io.kompose.service: karton-dashboard
+      annotations:
+        kompose.cmd: kompose convert -c
+        kompose.version: 1.36.0 (ae2a39403)
+    spec:
+      containers:
+      - env:
+        - name: KUBERNETES_CLUSTER_DOMAIN
+          value: cluster.local
+        image: karton-dashboard:local
+        name: karton-dashboard
+        ports:
+        - containerPort: 5000
+          protocol: TCP
+        resources: {}
+        volumeMounts:
+        - mountPath: /etc/karton/karton.ini
+          name: karton-config
+          subPath: karton.ini
+      restartPolicy: Always
+      volumes:
+      - configMap:
+          items:
+          - key: karton.ini
+            path: karton.ini
+          name: karton-config
+        name: karton-config
+
+
+

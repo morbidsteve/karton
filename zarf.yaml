@@ -1,0 +1,135 @@
+kind: ZarfPackageConfig
+metadata:
+  name: karton-playground
+  description: Zarf package of karton-playground
+  version: 0.0.1
+
+components:
+#  - name: minio
+#    description: "Chart component for minio"
+#    required: true
+#    charts:
+#      - name: minio
+#        namespace: karton2
+#        localPath: ./chart/karton/templates/minio
+#        version: 0.0.1
+#        valuesFiles:
+#          - ./chart/karton/values.yaml
+#    images:
+#      - minio/minio
+#
+#  - name: redis
+#    description: "Chart component for redis"
+#    required: true
+#    charts:
+#      - name: redis
+#        namespace: karton2
+#        localPath: ./chart/karton/templates/redis
+#        version: 0.0.1
+#        valuesFiles:
+#          - ./chart/karton/values.yaml
+#    images:
+#      - redis:alpine
+#
+#  - name: postgres
+#    description: "Chart component for postgres"
+#    required: true
+#    charts:
+#      - name: postgres
+#        namespace: karton2
+#        localPath: ./chart/karton/templates/postgres
+#        version: 0.0.1
+#        valuesFiles:
+#          - ./chart/karton/values.yaml
+#    images:
+#      - bitnami/postgresql:16
+
+  - name: mwdb
+    description: "Chart component for mwdb"
+    required: true
+    charts:
+      - name: mwdb
+        namespace: karton2
+        localPath: ./chart/karton/templates/mwdb
+        version: 0.0.1
+        valuesFiles:
+          - ./chart/karton/values.yaml
+    images:
+      - mwdb:local
+
+  - name: mwdb-web
+    description: "Chart component for mwdb-web"
+    required: true
+    charts:
+      - name: mwdb-web
+        namespace: karton2
+        localPath: ./chart/karton/templates/mwdb-web
+        version: 0.0.1
+        valuesFiles:
+          - ./chart/karton/values.yaml
+    images:
+      - mwdb-web:alive
+
+  - name: karton-system
+    description: "Chart component for karton-system"
+    required: true
+    charts:
+      - name: karton-system
+        namespace: karton2
+        localPath: ./chart/karton/templates/karton-system
+        version: 0.0.1
+        valuesFiles:
+          - ./chart/karton/values.yaml
+    images:
+      - karton-system:alive
+
+  - name: karton-classifier
+    description: "Chart component for karton-classifier"
+    required: true
+    charts:
+      - name: karton-classifier
+        namespace: karton2
+        localPath: ./chart/karton/templates/karton-classifier
+        version: 0.0.1
+        valuesFiles:
+          - ./chart/karton/values.yaml
+    images:
+      - karton-classifier:alive
+
+  - name: karton-dashboard
+    description: "Chart component for karton-dashboard"
+    required: true
+    charts:
+      - name: karton-dashboard
+        namespace: karton2
+        localPath: ./chart/karton/templates/karton-dashboard
+        version: 0.0.1
+        valuesFiles:
+          - ./chart/karton/values.yaml
+    images:
+      - karton-dashboard:local
+
+
+  - name: uds-exemption-package
+    description: "Chart component for karton-dashboard"
+    required: true
+    charts:
+      - name: uds-exemption-package
+        namespace: karton2
+        localPath: ./chart/uds-config/
+        version: 0.0.1
+    images:
+      - karton-mwdb-reporter:alive
+
+  - name: karton-mwdb-reporter
+    description: "Chart component for karton-mwdb-reporter"
+    required: true
+    charts:
+      - name: karton-mwdb-reporter
+        namespace: karton2
+        localPath: ./chart/karton/templates/karton-mwdb-reporter
+        version: 0.0.1
+        valuesFiles:
+          - ./chart/karton/values.yaml
+    images:
+      - karton-mwdb-reporter:alive

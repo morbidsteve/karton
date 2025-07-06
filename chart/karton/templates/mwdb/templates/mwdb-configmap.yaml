@@ -1,0 +1,11 @@
+{{/*apiVersion: v1*/}}
+{{/*kind: ConfigMap*/}}
+{{/*metadata:*/}}
+{{/*  name: mwdb-cm0*/}}
+{{/*  labels:*/}}
+{{/*    app: mwdb*/}}
+{{/*    release: {{ .Release.Name }}*/}}
+{{/*    heritage: {{ .Release.Service }}*/}}
+{{/*data:*/}}
+{{/*  karton.docker.ini: |*/}}
+{{/*{{- .Values.mwdb.cm0.kartonDockerIni | nindent 4 }}*/}}

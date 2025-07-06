@@ -1,0 +1,95 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mwdb
+  labels:
+    io.kompose.service: mwdb
+  annotations:
+    kompose.cmd: kompose convert -c
+    kompose.version: 1.36.0 (ae2a39403)
+spec:
+  replicas: {{ .Values.mwdb.replicas }}
+  strategy:
+    type: {{ .Values.mwdb.strategy.type | quote }}
+  selector:
+    matchLabels:
+      io.kompose.service: mwdb
+  template:
+    metadata:
+      labels:
+        io.kompose.service: mwdb
+      annotations:
+        kompose.cmd: kompose convert -c
+        kompose.version: 1.36.0 (ae2a39403)
+    spec:
+      containers:
+      - env:
+        - name: MWDB_ADMIN_PASSWORD
+          value: {{ quote .Values.mwdb.mwdb.env.mwdbAdminPassword }}
+        - name: MWDB_ENABLE_KARTON
+          value: {{ quote .Values.mwdb.mwdb.env.mwdbEnableKarton }}
+        - name: MWDB_HASH_PATHING
+          value: {{ quote .Values.mwdb.mwdb.env.mwdbHashPathing }}
+        - name: MWDB_POSTGRES_URI
+          value: {{ quote .Values.mwdb.mwdb.env.mwdbPostgresUri }}
+        - name: MWDB_REDIS_URI
+          value: {{ quote .Values.mwdb.mwdb.env.mwdbRedisUri }}
+        - name: MWDB_S3_STORAGE_ACCESS_KEY
+          value: {{ quote .Values.mwdb.mwdb.env.mwdbS3StorageAccessKey }}
+        - name: MWDB_S3_STORAGE_BUCKET_NAME
+          value: {{ quote .Values.mwdb.mwdb.env.mwdbS3StorageBucketName }}
+        - name: MWDB_S3_STORAGE_ENDPOINT
+          value: {{ quote .Values.mwdb.mwdb.env.mwdbS3StorageEndpoint }}
+        - name: MWDB_S3_STORAGE_SECRET_KEY
+          value: {{ quote .Values.mwdb.mwdb.env.mwdbS3StorageSecretKey }}
+        - name: MWDB_SECRET_KEY
+          value: {{ quote .Values.mwdb.mwdb.env.mwdbSecretKey }}
+        - name: MWDB_STORAGE_PROVIDER
+          value: {{ quote .Values.mwdb.mwdb.env.mwdbStorageProvider }}
+        - name: KUBERNETES_CLUSTER_DOMAIN
+          value: {{ quote .Values.kubernetesClusterDomain }}
+        - name: FLASK_APP
+          value: "mwdb.app:app"
+        - name: FLASK_RUN_HOST
+          value: "0.0.0.0"
+        - name: FLASK_RUN_PORT
+          value: "8080"
+        image: {{ .Values.mwdb.mwdb.image.repository }}:{{ .Values.mwdb.mwdb.image.tag
+          | default .Chart.AppVersion }}
+        imagePullPolicy: {{ .Values.mwdb.mwdb.image.pullPolicy | default "IfNotPresent" }}
+        name: mwdb
+        command: ["/bin/sh"]
+        args: ["-c", "
+          echo 'Waiting for DB to become operational';
+          until psql \"$MWDB_POSTGRES_URI\" -c \"\\q\" ; do
+            echo 'Waiting for postgres';
+            sleep 1;
+          done;
+          echo 'Configuring mwdb-core instance';
+          /app/venv/bin/mwdb-core configure --quiet basic;
+          echo 'Starting MWDB with mwdb-core CLI';
+          exec /app/venv/bin/mwdb-core run --host 0.0.0.0 --port 8080
+        "]
+        resources: {}
+        volumeMounts:
+        - mountPath: /etc/karton/karton.ini
+          name: karton-config
+          subPath: karton.ini
+      restartPolicy: Always
+      volumes:
+        - configMap:
+            items:
+              - key: karton.ini
+                path: karton.ini
+            name: karton-config
+          name: karton-config
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: karton-config
+data:
+  karton.ini: |
+{{- .Values.mwdb.cm0.kartonDockerIni | nindent 4 }}
+

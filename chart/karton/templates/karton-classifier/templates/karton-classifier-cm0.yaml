@@ -1,0 +1,11 @@
+{{/*apiVersion: v1*/}}
+{{/*kind: ConfigMap*/}}
+{{/*metadata:*/}}
+{{/*  name: karton-classifier-cm0*/}}
+{{/*  labels:*/}}
+{{/*    io.kompose.service: karton-classifier*/}}
+{{/*  annotations:*/}}
+{{/*    use-subpath: "true"*/}}
+{{/*data:*/}}
+{{/*  karton.docker.ini: {{ .Values.rtonClassifierCm0.kartonDockerIni | toYaml | indent*/}}
+{{/*    1 }}*/}}

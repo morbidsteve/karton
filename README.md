@@ -1,0 +1,73 @@
+# Ubuntu Server + RKE2 + UDS + Karton
+I'm starting on a Macbook Pro M3 (so Arm). I plan to work this on x86 in the near future. 
+##
+Start here: `https://github.com/morbidsteve/uds-core-rke2/blob/main/ubuntu-arm-rke2-install-notes.md`
+##
+After completing the above you will have a full up UDS environment. The thing about Karton is the images that are built and available are only for x86 so we have to build them for Arm.
+This can be a hefty effort, basically you need to find all of the Dockerfiles so you can build the containers from scratch (but I have already done that on my machine). **FUTURE work: I need to pull that altogether and add here**
+##
+`git clone ` this repo
+##
+The way I have been doing this is to build the redis, minio, and postgres packages in one go, so that when I am troubleshooting to build the other images, I don't keep trying to pull from the ghcr repos.
+##
+It's best if you build the following packages on the system that you are running UDS on for development type activity for efficiency.
+# Build minio, redis, and postgres
+
+in the zarf.yaml, comment out all components except the minio, redis, and postgres.
+
+kind: ZarfPackageConfig
+metadata:
+name: karton-playground
+description: Zarf package of karton-playground
+version: 0.0.1
+
+components:
+- name: minio
+    [...]
+- name: redis
+    [...]
+- name: postgres
+    [...]
+
+
+Then run `uds run dev` from the root folder. Once complete, you should have a working instantiation of the three in the `karton2` namespace.
+Use the k9s that comes with zarf/uds: `zarf tools k9s` and go to namespaces, then narrow down to `karton2`.
+
+After that is completed, and all of your deployments are up, go ahead and reverse the commenting out of the components, so that everything **but** minio, redis, and postgres are uncommented.
+
+
+kind: ZarfPackageConfig
+metadata:
+name: karton-playground
+description: Zarf package of karton-playground
+version: 0.0.1
+
+components:
+- name: mwdb
+    [...]
+- name: mwdb-web
+    [...]
+- name: karton-system
+    [...]
+- name: karton-classifier
+    [...]
+- name: karton-dashboard
+    [...]
+- name: uds-exemption-package
+    [...]
+- name: karton-mwdb-reporter
+    [...]
+
+Now again, run `uds run dev` and once complete, you should have a running implementation of kraton-playground.
+
+You'll need to update your /etc/hosts to add the DNS resolutions for the VirtualServices to be able to interact with it now.
+
+For me, that's the following (note, Metallb sets up the two interfaces giving the IPs below, which can be seen in your services for admin and tenant gateways).
+`192.168.64.201	sso.uds.dev minio.uds.dev mwdb.uds.dev mwdb-web.uds.dev mwdb.uds.dev postgres.uds.dev karton-dashboard.uds.dev`
+
+`192.168.64.200	keycloak.admin.uds.dev`
+
+
+
+
+

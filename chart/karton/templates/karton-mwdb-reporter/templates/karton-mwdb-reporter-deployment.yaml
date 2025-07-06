@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: karton-mwdb-reporter
+  labels:
+    io.kompose.service: karton-mwdb-reporter
+  annotations:
+    kompose.cmd: kompose convert -c
+    kompose.version: 1.36.0 (ae2a39403)
+spec:
+  replicas: {{ .Values.kartonMwdbReporter.replicas }}
+  strategy:
+    type: {{ .Values.kartonMwdbReporter.strategy.type | quote }}
+  selector:
+    matchLabels:
+      io.kompose.service: karton-mwdb-reporter
+  template:
+    metadata:
+      labels:
+        io.kompose.service: karton-mwdb-reporter
+      annotations:
+        kompose.cmd: kompose convert -c
+        kompose.version: 1.36.0 (ae2a39403)
+    spec:
+      containers:
+      - env:
+        - name: KUBERNETES_CLUSTER_DOMAIN
+          value: {{ quote .Values.kubernetesClusterDomain }}
+        image: karton-mwdb-reporter:alive
+        name: karton-mwdb-reporter
+        resources: {}
+        volumeMounts:
+        - mountPath: /etc/karton/karton.ini
+          name: karton-config
+          subPath: karton.ini
+      restartPolicy: Always
+      volumes:
+        - configMap:
+            items:
+              - key: karton.ini
+                path: karton.ini
+            name: karton-config
+          name: karton-config

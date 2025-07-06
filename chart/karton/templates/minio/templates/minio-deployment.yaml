@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: minio
+  labels:
+    io.kompose.service: minio
+  annotations:
+    kompose.cmd: kompose convert -c
+    kompose.version: 1.36.0 (ae2a39403)
+spec:
+  replicas: {{ .Values.minio.replicas }}
+  selector:
+    matchLabels:
+      io.kompose.service: minio
+  template:
+    metadata:
+      labels:
+        io.kompose.service: minio
+      annotations:
+        kompose.cmd: kompose convert -c
+        kompose.version: 1.36.0 (ae2a39403)
+    spec:
+      containers:
+      - args: {{- toYaml .Values.minio.minio.args | nindent 8 }}
+        command:
+        - sh
+        env:
+        - name: MINIO_ACCESS_KEY
+          value: {{ quote .Values.minio.minio.env.minioAccessKey }}
+        - name: MINIO_SECRET_KEY
+          value: {{ quote .Values.minio.minio.env.minioSecretKey }}
+        - name: KUBERNETES_CLUSTER_DOMAIN
+          value: {{ quote .Values.kubernetesClusterDomain }}
+        image: {{ .Values.minio.minio.image.repository }}:{{ .Values.minio.minio.image.tag
+          | default .Chart.AppVersion }}
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          exec:
+            command:
+            - timeout 5s bash -c ':> /dev/tcp/127.0.0.1/9000' || exit 1
+          failureThreshold: 3
+          periodSeconds: 5
+          timeoutSeconds: 5
+        name: minio
+        volumeMounts:
+          - name: config-volume
+            mountPath: /data
+        ports:
+        - containerPort: 9000
+          protocol: TCP
+        - containerPort: 8070
+          protocol: TCP
+        resources: {}
+      restartPolicy: Always
+      volumes:
+        - name: config-volume
+          emptyDir: {}

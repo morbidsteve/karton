@@ -1,0 +1,11 @@
+{{/*apiVersion: v1*/}}
+{{/*kind: ConfigMap*/}}
+{{/*metadata:*/}}
+{{/*  name: {{ include "karton-mwdb-reporter.fullname" . }}-cm0*/}}
+{{/*  labels:*/}}
+{{/*    io.kompose.service: karton-mwdb-reporter*/}}
+{{/*  {{- include "karton-mwdb-reporter.labels" . | nindent 4 }}*/}}
+{{/*  annotations:*/}}
+{{/*    use-subpath: "true"*/}}
+{{/*data:*/}}
+{{/*  karton.docker.ini: {{ .Values.cm0.kartonDockerIni | toYaml | indent 1 }}*/}}

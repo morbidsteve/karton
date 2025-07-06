@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mwdb-web
+  labels:
+    io.kompose.service: mwdb-web
+  annotations:
+    kompose.cmd: kompose convert -c
+    kompose.version: 1.36.0 (ae2a39403)
+spec:
+  replicas: {{ .Values.mwdbWeb.replicas }}
+  selector:
+    matchLabels:
+      io.kompose.service: mwdb-web
+  template:
+    metadata:
+      labels:
+        io.kompose.service: mwdb-web
+      annotations:
+        kompose.cmd: kompose convert -c
+        kompose.version: 1.36.0 (ae2a39403)
+    spec:
+      containers:
+      - env:
+        - name: KUBERNETES_CLUSTER_DOMAIN
+          value: {{ quote .Values.kubernetesClusterDomain }}
+        image: {{ .Values.mwdbWeb.mwdbWeb.image.repository }}:alive
+        name: mwdb-web
+        volumeMounts:
+          - name: cache-nginx
+            mountPath: /var/cache/nginx
+          - name: nginx-run
+            mountPath: /run
+        ports:
+        - containerPort: 80
+          protocol: TCP
+        resources: {}
+      restartPolicy: Always
+      volumes:
+        - name: cache-nginx
+          emptyDir: {}
+        - name: nginx-run
+          emptyDir: {}
+
+

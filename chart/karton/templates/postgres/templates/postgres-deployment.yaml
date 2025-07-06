@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+  labels:
+    io.kompose.service: postgres
+  annotations:
+    kompose.cmd: kompose convert -c
+    kompose.version: 1.36.0 (ae2a39403)
+spec:
+  replicas: {{ .Values.postgres.replicas }}
+  selector:
+    matchLabels:
+      io.kompose.service: postgres
+  template:
+    metadata:
+      labels:
+        io.kompose.service: postgres
+      annotations:
+        kompose.cmd: kompose convert -c
+        kompose.version: 1.36.0 (ae2a39403)
+    spec:
+      containers:
+      - env:
+        - name: POSTGRES_DB
+          value: {{ quote .Values.postgres.postgres.env.postgresDb }}
+        - name: POSTGRES_PASSWORD
+          value: {{ quote .Values.postgres.postgres.env.postgresPassword }}
+        - name: POSTGRES_USER
+          value: {{ quote .Values.postgres.postgres.env.postgresUser }}
+        - name: KUBERNETES_CLUSTER_DOMAIN
+          value: {{ quote .Values.kubernetesClusterDomain }}
+        image: bitnami/postgresql:16
+        imagePullPolicy: {{ .Values.serviceName.serviceName.image.pullPolicy | default "IfNotPresent" }}
+        livenessProbe:
+          exec:
+            command:
+            - pg_isready
+            - -U
+            - mwdb
+          failureThreshold: 5
+          periodSeconds: 10
+          timeoutSeconds: 5
+        name: postgres
+        resources: {}
+        volumeMounts:
+          - name: postgres-data
+            mountPath: /bitnami/postgresql
+          - name: postgres-conf
+            mountPath: /opt/bitnami/postgresql/conf
+          - name: postgres-tmp
+            mountPath: /opt/bitnami/postgresql/tmp
+      restartPolicy: Always
+      volumes:
+        - name: postgres-data
+          emptyDir: {}
+        - name: postgres-conf
+          emptyDir: {}
+        - name: postgres-tmp
+          emptyDir: {}

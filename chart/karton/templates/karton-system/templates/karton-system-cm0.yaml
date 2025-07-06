@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: karton-system-cm0
+  labels:
+    io.kompose.service: karton-system
+  annotations:
+    use-subpath: "true"
+data:
+  karton.docker.ini: {{ .Values.cm0.kartonDockerIni | toYaml | indent 1 }}

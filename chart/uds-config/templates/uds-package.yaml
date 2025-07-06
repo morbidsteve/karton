@@ -1,0 +1,44 @@
+apiVersion: uds.dev/v1alpha1
+kind: Package
+metadata:
+  name: karton
+  namespace: karton2
+spec:
+  network:
+    expose:
+      - service: mwdb-web
+        selector:
+          app.kubernetes.io/name: mwdb-web
+        gateway: tenant
+        host: mwdb-web
+        port: 80
+      - service: postgres
+        selector:
+          app.kubernetes.io/name: postgres
+        gateway: tenant
+        host: postgres
+        port: 5432
+      - service: karton-dashboard
+        selector:
+          app.kubernetes.io/name: karton-dashboard
+        gateway: tenant
+        host: karton-dashboard
+        port: 5000
+    allow:
+      - direction: Ingress
+        remoteGenerated: Anywhere
+      - direction: Egress
+        remoteGenerated: Anywhere
+  sso:
+    - name: Demo SSO karton dashboard
+      clientId: karton-dashboard
+      redirectUris:
+        - "https://karton-dashboard.uds.dev/services"
+      enableAuthserviceSelector:
+        app: karton-dashboard
+    - name: mwdb-web
+      clientId: mwdb-web
+      redirectUris:
+        - "https://mwdb-web.uds.dev/?q=&count=0"
+      enableAuthserviceSelector:
+        app: mwdb-web
